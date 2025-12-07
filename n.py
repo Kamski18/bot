@@ -1,6 +1,13 @@
-import telebot
+import logging
 import os
+
+import telebot
 from jsondb.database import JsonDB
+
+import logging_init
+
+log: logging.Logger = logging.getLogger(__name__)
+
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_CHAT_ID = (1160508602, 1981928681, 1024853832)
@@ -9,7 +16,7 @@ bot = telebot.TeleBot(BOT_TOKEN)  # type: ignore
 
 # Track /auth state
 db: JsonDB = JsonDB(__name__)
-
+log.info(db.data)
 
 
 # -------------------------
