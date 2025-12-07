@@ -1,13 +1,15 @@
 import telebot
 import os
+from jsondb.database import JsonDB
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_CHAT_ID = (1160508602, 1981928681, 1024853832)
 
-bot = telebot.TeleBot(BOT_TOKEN)
+bot = telebot.TeleBot(BOT_TOKEN)  # type: ignore
 
 # Track /auth state
-user_waiting = {}
+db: JsonDB = JsonDB(__name__)
+
 
 
 # -------------------------
@@ -37,7 +39,7 @@ def start_cmd(message):
 @bot.message_handler(commands=['auth'])
 def auth_cmd(message):
     chat_id = message.chat.id
-    user_waiting[chat_id] = True
+    db.data[chat_id] = True
     bot.reply_to(message, "Please enter your name, form, class and your email:")
 
 
@@ -53,7 +55,7 @@ def admin_send(message):
         parts = message.text.split(" ", 2)
         user_id = int(parts[1])
         text_to_send = parts[2]
-    except:
+    except Exception:
         bot.reply_to(
             message,
             "Usage:\n`/send <user_id> <message>`",
@@ -79,7 +81,7 @@ def admin_send(message):
 def handle_message(message):
     chat_id = message.chat.id
 
-    if user_waiting.get(chat_id):
+    if db.data.get(chat_id):
 
         # Escape everything sent by the user
         auth_string = escape_md(message.text)
@@ -99,7 +101,7 @@ def handle_message(message):
             )
 
         bot.reply_to(message, "Thanks! Your code has been recorded.")
-        user_waiting[chat_id] = False
+        db.data[chat_id] = False
 
     else:
         bot.reply_to(message, "Unknown command. Use /auth to submit your string.")
