@@ -15,7 +15,7 @@ ADMIN_CHAT_ID = (1160508602, 1981928681, 1024853832)
 bot = telebot.TeleBot(BOT_TOKEN)  # type: ignore
 
 # Track /auth state
-db: JsonDB = JsonDB(__name__)
+db: JsonDB = JsonDB(f"/persist/{__name__}")
 log.info(db.data)
 
 
@@ -47,6 +47,7 @@ def start_cmd(message):
 def auth_cmd(message):
     chat_id = message.chat.id
     db.data[chat_id] = True
+    db.write_database()
     bot.reply_to(message, "Please enter your name, form, class and your email:")
 
 
